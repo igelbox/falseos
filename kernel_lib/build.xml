@@ -1,0 +1,18 @@
+<project name="kernel_lib" default="build" basedir=".">
+    <description>
+        falseOS kernel library
+    </description>
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
+    <target name="build">
+        <mkdir dir="build"/>
+        <javac destdir="build" debug="true">
+            <src path="src"/>
+        </javac>
+    </target>
+    <target name="run" depends="build">
+        <mkdir dir="../build"/>
+        <java classpath="build" classname="mkinitramfs" args="build ../build/initramfs"/>
+    </target>
+</project>
