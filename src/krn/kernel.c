@@ -14,32 +14,31 @@ inline unsigned char inportb( unsigned short port ) {
 
 unsigned int last_used = 0;
 
-//IRQ_HANDLER( irq_timer ) {
-//    tty_blink( 1000 / 18 );
-//    kjvm_fd_handle_t( );
-//}
+IRQ_HANDLER( irq_timer ) {
+    tty_blink( 1000 / 18 );
+    kjvm_fd_handle_t( );
+}
 
-//IRQ_HANDLER( irq_floppy ) {
-//    kjvm_fd_handle( );
-//    outportb( 0x20, 0x20 );
-//}
+IRQ_HANDLER( irq_floppy ) {
+    kjvm_fd_handle( );
+    outportb( 0x20, 0x20 );
+}
 
-//IRQ_HANDLER( irq_keyboard ) {
-//    kjvm_handle_kdb( );
-//}
+IRQ_HANDLER( irq_keyboard ) {
+    kjvm_handle_kdb( );
+}
 
 void kernel_main( ) {
     tty_init( );
-
-/*    i_install( 0x20, &irq_timer, 0x8e );
+    i_install( 0x20, &irq_timer, 0x8e );
     i_install( 0x21, &irq_keyboard, 0x8e );
-    i_install( 0x26, &irq_floppy, 0x8e );*/
+    i_install( 0x26, &irq_floppy, 0x8e );
     i_setup( );
     i_enable( );
 
     tty_puts( "ok\n" );
 
-//    kjvm_start( );
+    kjvm_start( );
 
     for (;; )
         asm( "hlt" );
