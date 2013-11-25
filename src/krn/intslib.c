@@ -46,7 +46,6 @@ void i_setup()
   *table_address = IDT_TABLE;
 
   asm("lidt 0(,%0,)"::"a"(IDT_REG));
-  asm("sti");
 }
 
 
