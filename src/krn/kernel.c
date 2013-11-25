@@ -1,18 +1,18 @@
 #include "drv/tty.h"
 #include "intslib.h"
 
-inline void outportb( unsigned short port, unsigned char value ) {
-    asm( "outb %b0,%w1"::"a"(value), "d"(port) );
+void outportb( unsigned short port, unsigned char value ) {
+    __asm__( "outb %b0,%w1"::"a"(value), "d"(port) );
 }
 
-inline unsigned char inportb( unsigned short port ) {
+unsigned char inportb( unsigned short port ) {
     char value;
-    asm( "inb %w1, %b0" : "=a"(value) : "d"(port) );
+    __asm__( "inb %w1, %b0" : "=a"(value) : "d"(port) );
     return value;
 }
 
 #define IRQ_HANDLER(func) void func (void);\
- asm(#func ": pusha \n call _" #func " \n movb $0x20, %al \n outb %al, $0x20 \n popa \n iret \n");\
+ __asm__(#func ": pusha \n call _" #func " \n movb $0x20, %al \n outb %al, $0x20 \n popa \n iret \n");\
  void _ ## func(void)
 
 unsigned int last_used = 0;
@@ -54,5 +54,5 @@ void kernel_main( ) {
     kjvm_start( );
 
     for (;; )
-        asm( "hlt" );
+        __asm__( "hlt" );
 }
