@@ -34,6 +34,8 @@ void jrtf_arr_load( JRFrame* frame, void* x ) {
         case AINT:
             e->value = ((int*) a->data)[idx->value];
             break;
+        default:
+            throw("jrtf_arr_load.switch");
     }
 }
 
@@ -61,6 +63,8 @@ void jrtf_arr_store( JRFrame* frame, void* x ) {
         case AINT:
             ((int*) a->data)[idx->value] = val->value;
             break;
+        default:
+            throw("jrtf_arr_store.switch");
     }
 }
 

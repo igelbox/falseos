@@ -19,11 +19,11 @@ JClass jf_get_class( JField f ) {
 }
 
 char* jf_get_name( JField f ) {
-    return ((JStringUtf*) jf_get_class( f )->consts[f->name_idx - 1].ref)->data;
+    return (char*)((JStringUtf*) jf_get_class( f )->consts[f->name_idx - 1].ref)->data;
 }
 
 char* jf_get_type( JField f ) {
-    return ((JStringUtf*) jf_get_class( f )->consts[f->type_idx - 1].ref)->data;
+    return (char*)((JStringUtf*) jf_get_class( f )->consts[f->type_idx - 1].ref)->data;
 }
 
 JRType jf_get_rtype( JField f ) {
@@ -48,7 +48,8 @@ JRType jf_get_rtype( JField f ) {
             return VOID;
         default:
             tty_puts( type );
-    	    assert( false, "jf_get_rtype" );
+            throw( "jf_get_rtype" );
+            return VOID;//suppress warning
     }
 }
 

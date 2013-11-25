@@ -2,7 +2,7 @@ DIST=dist
 BUILD=build
 BOOTSRC=src/boot
 KRNSRC=src/krn
-GCC_OPTS=-Os -m32 -ffreestanding -c
+GCC_OPTS=-Os -m32 -ffreestanding -c -Wall
 
 all:		dist
 

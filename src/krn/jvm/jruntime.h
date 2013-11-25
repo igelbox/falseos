@@ -28,10 +28,10 @@ void assertaop( const char* op_name, JRAType type, JRAType tgt_type ) {
 void jr_get_fm_info( JClass c, int idx, char** cls_name, char** name, char** type ) {
     JMethodAndFieldInfo *fi = (JMethodAndFieldInfo*) c->consts[idx - 1].ref;
     int class_name_idx = c->consts[fi->class_info_idx - 1].value;
-    *cls_name = ((JStringUtf*) c->consts[class_name_idx - 1].ref)->data;
+    *cls_name = (char*)((JStringUtf*) c->consts[class_name_idx - 1].ref)->data;
     JNameAndTypeInfo *nat = (JNameAndTypeInfo*) c->consts[fi->nat_idx - 1].ref;
-    *name = ((JStringUtf*) c->consts[nat->name_idx - 1].ref)->data;
-    *type = ((JStringUtf*) c->consts[nat->type_idx - 1].ref)->data;
+    *name = (char*)((JStringUtf*) c->consts[nat->name_idx - 1].ref)->data;
+    *type = (char*)((JStringUtf*) c->consts[nat->type_idx - 1].ref)->data;
 }
 
 char* jr_get_string_ref_data( void* o ) {

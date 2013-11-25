@@ -22,12 +22,12 @@ JClass jcf_load_class( const char *name );
 
 char* jc_get_name( JClass c ) {
     ui16 class_name_idx = c->consts[c->this_class_idx - 1].value;
-    return ((JStringUtf*) c->consts[class_name_idx - 1].ref)->data;
+    return (char*)((JStringUtf*) c->consts[class_name_idx - 1].ref)->data;
 }
 
 char* jc_get_super_name( JClass c ) {
     ui16 class_name_idx = c->consts[c->super_class_idx - 1].value;
-    return ((JStringUtf*) c->consts[class_name_idx - 1].ref)->data;
+    return (char*)((JStringUtf*) c->consts[class_name_idx - 1].ref)->data;
 }
 
 JClass jc_get_super( JClass c ) {

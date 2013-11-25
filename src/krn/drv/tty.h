@@ -8,6 +8,8 @@
 #ifndef _TTY_H
 #define	_TTY_H
 
+#include <stdarg.h>
+
 void vprintf( const char* fmt, va_list args );
 
 void printf( const char* fmt, ... );
