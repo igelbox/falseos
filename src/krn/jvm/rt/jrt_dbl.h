@@ -48,22 +48,23 @@ void jrtf_dbl_op( JRFrame* frame, void* x ) {
 void jrtf_dbl_to( JRFrame* frame, void* x ) {
     JRObjRef *v = jr_peek( frame->stack );
     assert_op_t( frame, v->type, DOUBLE );
+    typedef union { ui64 u; double d; } U64D;
     switch ( (JRAType) x ) {
         case ABYTE:
             v->type = INT;
-            v->value = (char) *(double*) (&v->value);
+            v->value = (char) ((U64D*) (&v->value))->d;
             break;
         case ACHAR:
             v->type = INT;
-            v->value = (short) *(double*) (&v->value);
+            v->value = (short) ((U64D*) (&v->value))->d;
             break;
         case AINT:
             v->type = INT;
-            v->value = (int) *(double*) (&v->value);
+            v->value = (int) ((U64D*) (&v->value))->d;
             break;
         case ALONG:
             v->type = LONG;
-            v->value = (long long) *(double*) (&v->value);
+            v->value = (long long) ((U64D*) (&v->value))->d;
             break;
         default:
             throw ("unknown D2 operation: %i", (int) x);

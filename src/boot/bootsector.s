@@ -90,11 +90,11 @@ entry:
 
     mov ah, 0x03
     xor bx, bx
-    int 0x10
+    int 0x10 ;получаем координаты курсора
     push ds
     mov ax, 0x999
     mov ds, ax
-    mov [0x0], dx
+    mov [0x0], dx ;запоминаем координаты
     pop ds
 
     ; уберем курсор

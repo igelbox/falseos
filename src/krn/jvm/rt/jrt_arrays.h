@@ -20,7 +20,7 @@ void jrtf_arr_load( JRFrame* frame, void* x ) {
     const char* op_name = jrt_get_op( *frame->code ).name;
     assert( a != NULL, "%s[NP]", op_name );
     assert( a->class == NULL, "%s[AA]", op_name );
-    assert_op_t( frame, a->type, t );
+    assert_aop_t( frame, a->type, t );
     assert( idx->value < a->size, "%s[IDX OOB]", op_name );
     JRObjRef * e = jr_push( frame->stack );
     e->type = INT;
@@ -34,6 +34,8 @@ void jrtf_arr_load( JRFrame* frame, void* x ) {
         case AINT:
             e->value = ((int*) a->data)[idx->value];
             break;
+        default:
+            throw("jrtf_arr_load.switch");
     }
 }
 
@@ -49,7 +51,7 @@ void jrtf_arr_store( JRFrame* frame, void* x ) {
     const char* op_name = jrt_get_op( *frame->code ).name;
     assert( a != NULL, "%s[NP]", op_name );
     assert( a->class == NULL, "%s[AA]", op_name );
-    assert_op_t( frame, a->type, t );
+    assert_aop_t( frame, a->type, t );
     assert( idx->value < a->size, "%s[IDX OOB]", op_name );
     switch ( t ) {
         case ABYTE:
@@ -61,6 +63,8 @@ void jrtf_arr_store( JRFrame* frame, void* x ) {
         case AINT:
             ((int*) a->data)[idx->value] = val->value;
             break;
+        default:
+            throw("jrtf_arr_store.switch");
     }
 }
 
@@ -80,6 +84,7 @@ void jrtf_arr_new( JRFrame* frame, void* x ) {
             break;
         default:
             throw ("unknown JRAType: %i", frame->code[1]);
+            typ = ABYTE;//suppress warning
     }
     JRObjRef *e = jr_push( frame->stack );
     e->type = OBJECT;

@@ -1,4 +1,7 @@
 #include "jmemory.h"
+#include "../drv/tty.h"
+#include "../intslib.h"
+
 void assert( int cond, const char* msg );
 extern void tty_put_ui32_hex( unsigned int v );
 
@@ -15,6 +18,7 @@ unsigned int jmm_test_cell_g( unsigned int ptr ) {
 }
 
 int jmm_test_cell( unsigned int ptr ) {
+    extern void tty_blink_ctl(int enable);
     tty_blink_ctl( 0 );
     jmm_test_cell_s( ptr );
     tty_blink_ctl( 1 );
@@ -49,10 +53,9 @@ unsigned int jmm_test_mem( unsigned int low ) {
 void jmm_init( ) {
     min = 0x80000;//(unsigned int)&ptr + 16;
     ptr = (void*)min;
-    tty_puts( "testing memory... " );
+    printf("testing memory... ");
     max = jmm_test_mem( min );
-    tty_put_ui32( (max + 16) / 1024 / 1024 );
-    tty_puts( "MB found\n" );
+    printf("%iMiB found\n", (max + 16) / 1024 / 1024);
 }
 
 void* jmm_alloc( int size ) {

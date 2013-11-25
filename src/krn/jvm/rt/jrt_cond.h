@@ -34,6 +34,7 @@ void jrtf_cond_op( JRFrame* frame, void* x ) {
     assert_op_t( frame, e->type, INT );
     int d_addr = (short) ((frame->code[1] << 8) | frame->code[2]);
     bool ok;
+    typedef long long si64;
     switch ( (COND_OP) x ) {
         case COND_EQ:
             ok = e->value == 0;
@@ -42,16 +43,16 @@ void jrtf_cond_op( JRFrame* frame, void* x ) {
             ok = e->value != 0;
             break;
         case COND_LE:
-            ok = e->value <= 0;
+            ok = (si64) e->value <= 0;
             break;
         case COND_LT:
-            ok = e->value < 0;
+            ok = (si64) e->value < 0;
             break;
         case COND_GE:
-            ok = e->value >= 0;
+            ok = (si64) e->value >= 0;
             break;
         case COND_GT:
-            ok = e->value > 0;
+            ok = (si64) e->value > 0;
             break;
         default:
             throw ("unknown COND operation: %i", (int) x);

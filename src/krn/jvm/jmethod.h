@@ -19,11 +19,11 @@ JClass jm_get_class( JMethod m ) {
 }
 
 char* jm_get_name( JMethod m ) {
-    return ((JStringUtf*) jm_get_class( m )->consts[m->name_idx - 1].ref)->data;
+    return (char*)((JStringUtf*) jm_get_class( m )->consts[m->name_idx - 1].ref)->data;
 }
 
 char* jm_get_type( JMethod m ) {
-    return ((JStringUtf*) jm_get_class( m )->consts[m->type_idx - 1].ref)->data;
+    return (char*)((JStringUtf*) jm_get_class( m )->consts[m->type_idx - 1].ref)->data;
 }
 
 int jm_fill_input_types_( char* type, JRType *types ) {
@@ -96,6 +96,7 @@ JRType jm_get_result_type( JMethod m ) {
             return VOID;
         default:
             throw ("jm_get_result_type:%s:%i", type, i + 1);
+            return VOID;
     }
 }
 

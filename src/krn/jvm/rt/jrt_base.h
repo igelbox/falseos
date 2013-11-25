@@ -31,7 +31,7 @@ void jrtf_base_aload_null( JRFrame* frame, void* x ) {
 void jrtf_base_new( JRFrame* frame, void* x ) {
     int cls_idx = (short) ((frame->code[1] << 8) | frame->code[2]);
     JRObjRef* cls_name_idx = jropeek( frame->consts, cls_idx - 1 );
-    char* cls_name = ((JStringUtf*) jropeek( frame->consts, cls_name_idx->value - 1 )->ref)->data;
+    char* cls_name = (char*)((JStringUtf*) jropeek( frame->consts, cls_name_idx->value - 1 )->ref)->data;
     JClass cls = jcf_load_class( cls_name );
     JRObjRef *e = jr_push( frame->stack );
     e->type = OBJECT;
@@ -148,7 +148,7 @@ void jrtf_base_ldc2w( JRFrame* frame, void* x ) {
     switch ( e->type ) {
         case DOUBLE:
         {
-            double *d = (double*) & e->value;
+            //double *d = (double*) & e->value;
             break;
         }
         case LONG:

@@ -35,10 +35,10 @@ void jrtf_fld_op( JRFrame* frame, void* x ) {
         f = jc_find_field( cls, field_name, field_type, true );
     }
     assert( f != NULL, "%s: field not found", jrt_get_op( *frame->code ).name );
-    if ( (op == FLD_GS) || (op == FLD_GF) )
-        *jr_push( frame->stack ) = f->val;
-    else
+    if ( (op == FLD_PS) || (op == FLD_PF) )
         f->val = *e;
+    else
+        *jr_push( frame->stack ) = f->val;
     frame->code += 2;
 }
 

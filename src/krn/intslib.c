@@ -45,19 +45,18 @@ void i_setup()
   *table_limit = 256*8 - 1;
   *table_address = IDT_TABLE;
 
-  asm("lidt 0(,%0,)"::"a"(IDT_REG));
-  asm("sti");
+  __asm__("lidt 0(,%0,)"::"a"(IDT_REG));
 }
 
 
 //Включение обработки прерываний
 void i_enable()
 {
-  asm("sti");
+  __asm__("sti");
 }
 
 //Отключение обработки прерываний
 void i_disable()
 {
-  asm("cli");
+  __asm__("cli");
 }

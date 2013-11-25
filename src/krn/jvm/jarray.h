@@ -27,7 +27,8 @@ ui32 ja_type_size( JRAType type ) {
         case ADOUBLE:
             return 8;
         default:
-            assert( false, "ja_type_size!" );
+            throw( "ja_type_size!" );
+            return 0;//suppress warning
     }
 }
 
