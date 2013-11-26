@@ -20,7 +20,7 @@ $(BUILD)/kernel.bin:
 	$(CC) -o $(BUILD)/tty.o $(KRNSRC)/drv/tty.c
 	$(CC) -o $(BUILD)/jvm_mm.o $(KRNSRC)/jvm/jmm.c
 	$(CC) -o $(BUILD)/kjvm.o $(KRNSRC)/krnjvm.c
-	$(LD) -Ttext 0x10000 -o $@ $(BUILD)/startup.o $(BUILD)/kernel.o $(BUILD)/tty.o $(BUILD)/intslib.o $(BUILD)/kjvm.o $(BUILD)/jvm_mm.o
+	$(LD) -Ttext 0x10000 -o $@ -Map $(BUILD)/kernel.map $(BUILD)/startup.o $(BUILD)/kernel.o $(BUILD)/tty.o $(BUILD)/intslib.o $(BUILD)/kjvm.o $(BUILD)/jvm_mm.o
 
 $(BUILD)/imgmake: src/img/make.c
 	g++ -o $@ $<
