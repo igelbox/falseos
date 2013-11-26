@@ -3,26 +3,27 @@ BUILD=build
 BOOTSRC=src/boot
 KRNSRC=src/krn
 CC=gcc -std=c99 -Os -m32 -ffreestanding -c -Wall
+LD=ld -m elf_i386 --oformat binary 
 
-all:		dist
+all: $(DIST)/floppy.img
 
-dist:		bootsect kernel imgmake
-	exec $(BUILD)/imgmake $(BUILD)/bootsector.bin $(BUILD)/kernel.bin $(BUILD)/initramfs $(DIST)/floppy.img
+$(DIST)/floppy.img: $(BUILD)/bootsector.bin $(BUILD)/kernel.bin kernel_lib/dist/initramfs $(BUILD)/imgmake
+	exec $(BUILD)/imgmake $(BUILD)/bootsector.bin $(BUILD)/kernel.bin kernel_lib/dist/initramfs $@
 
-bootsect:
+$(BUILD)/bootsector.bin: $(BOOTSRC)/bootsector.s
 	nasm -fbin -o $(BUILD)/bootsector.bin $(BOOTSRC)/bootsector.s
 
-kernel:
+$(BUILD)/kernel.bin:
 	$(CC) -o $(BUILD)/startup.o $(KRNSRC)/startup.c
 	$(CC) -o $(BUILD)/kernel.o $(KRNSRC)/kernel.c
 	$(CC) -o $(BUILD)/intslib.o $(KRNSRC)/intslib.c
 	$(CC) -o $(BUILD)/tty.o $(KRNSRC)/drv/tty.c
 	$(CC) -o $(BUILD)/jvm_mm.o $(KRNSRC)/jvm/jmm.c
 	$(CC) -o $(BUILD)/kjvm.o $(KRNSRC)/krnjvm.c
-	ld -m elf_i386 --oformat binary -Ttext 0x10000 -o $(BUILD)/kernel.bin $(BUILD)/startup.o $(BUILD)/kernel.o $(BUILD)/tty.o $(BUILD)/intslib.o $(BUILD)/kjvm.o $(BUILD)/jvm_mm.o
+	$(LD) -Ttext 0x10000 -o $@ $(BUILD)/startup.o $(BUILD)/kernel.o $(BUILD)/tty.o $(BUILD)/intslib.o $(BUILD)/kjvm.o $(BUILD)/jvm_mm.o
 
-imgmake:	src/img/make.c
-	g++ -o $(BUILD)/imgmake src/img/make.c
+$(BUILD)/imgmake: src/img/make.c
+	g++ -o $@ $<
 
 clean:
 	rm -rf $(DIST)/*

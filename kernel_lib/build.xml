@@ -4,6 +4,7 @@
     </description>
     <target name="clean">
         <delete dir="build"/>
+        <delete dir="dist"/>
     </target>
     <target name="build">
         <mkdir dir="build"/>
@@ -12,7 +13,7 @@
         </javac>
     </target>
     <target name="run" depends="build">
-        <mkdir dir="../build"/>
-        <java classpath="build" classname="mkinitramfs" args="build ../build/initramfs"/>
+        <mkdir dir="dist"/>
+        <java classpath="build" classname="mkinitramfs" args="build dist/initramfs"/>
     </target>
 </project>
