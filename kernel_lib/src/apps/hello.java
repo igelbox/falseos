@@ -12,7 +12,7 @@ public class hello {
 
     protected static String about = "falseOS ia a true operating system based on java\n\t[writted by Vakhurin Sergey aka igel]\n";
     protected static String uc = "Unknown command: ";
-    protected static String help = "\tone of these command expected:\n\t\tclear - clear the screen\n\t\tfree  - show memory usage\n\t\tfloppy- testing floppy controller\n\t\tabout - show greeting\n";
+    protected static String help = "\tone of these command expected:\n\t\tclear - clear the screen\n\t\tfree  - show memory usage\n\t\tfloppy- testing floppy controller\n\t\treboot - rebooting computer\n\t\tabout - show greeting\n";
     protected static String promt = "[fos]$ ";
     protected static String s = new String();
 
@@ -40,6 +40,8 @@ public class hello {
                 if ( s.length() > 0 ) {
                     if ( s.equals( "about" ) )
                         Tty.print( about );
+                    else if (s.equals("reboot"))
+                        reboot();
                     else if ( s.equals( "clear" ) )
                         Tty.clear();
                     else if ( s.equals( "floppy" ) )
@@ -64,5 +66,13 @@ public class hello {
             } else
                 s.append( (char) c );
         }
+    }
+
+    private static void reboot() {
+        int good = 0x02;
+        while ((good & 0x02) != 0)
+            good = fos.sys.IOPorts.in(0x64);
+        fos.sys.IOPorts.out(0x64, 0xFE);
+        fos.sys.Interrupts.halt();
     }
 }
