@@ -1,277 +1,264 @@
-[BITS 16]
-[ORG 0x7C00]
-entry:
+.code16
+.section .text
+.global _start
+_start:
     cli
-    mov ax, cs
-    mov ds, ax
-    mov es, ax
-    mov ss, ax
-    mov sp, entry
+    movw %cs, %ax
+    movw %ax, %ss
+    movw $0x7c00, %sp
     sti
 
-    mov ax, 0x0FE0
-    mov ds, ax
-    mov es, ax
-    mov ax, 2
-    mov cx, 1
-    mov si, msg_readmft
+    movw $0x0FE0, %ax
+    movw %ax, %ds
+    movw %ax, %es
+    movw $0x2, %ax
+    movw $0x1, %cx
+    movw $msg_readmft, %si
     call kputs
-    call read	;читаем MFT
-    mov si, msg_ok
+    call read   ;//reading MFT
+    movw $msg_ok, %si
     call kputs
-    mov si, 32
-    xor di, di
-    xor dx, dx
+
+    movw $32, %si
+    xorw %di, %di
+    xorw %dx, %dx
     .loop:
-        add si, 7
+        addw $07, %si
         lodsb
-        test al, al
-        jz short .endloop
-        cmp al, 1
-        je short .boot
-        cmp al, 2
-        je short .boot
+        test %al, %al
+        jz .endloop
+        cmpb $01, %al
+        je .boot
+        cmpb $02, %al
+        je .boot
         .boot_cont:
-        add si, 24
-        jmp short .loop
+        addw $24, %si
+        jmp .loop
     .endloop:
-        mov si, msg_notfound
+        movw $msg_notfound, %si
         call kputs
         .lp:
             hlt
-        jmp short .lp
+        jmp .lp
     .boot:
     pusha
-    mov cl, [si+7];начальный сектор
-    mov ch, [si+7+8];кол-во секторов
-    cmp al, 1
-    je short .mkrn
-        mov si, msg_iramfs
-        mov ax, 0x4000
-        jmp short .mout
+    movb 07(%si), %cl   ;//sector offset
+    movb 15(%si), %ch   ;//sector count
+    cmpb $01, %al
+    je .mkrn
+        movw $msg_iramfs, %si
+        movw $0x4000, %ax
+        jmp .mout
     .mkrn:
-        mov si, msg_kernel
-        mov ax, 0x1000
+        movw $msg_kernel, %si
+        movw $0x1000, %ax
     .mout:
-    mov es, ax
     call kputs
-    mov si, msg_found
+    movw $msg_found, %si
     call kputs
-    mov al, cl
+    movw %ax, %es
+    movb %cl, %al
     call kputn
-    mov al, ':'
+    movb $':', %al
     call kputc
-    mov al, ch
+    movb %ch, %al
     call kputn
-    mov si, msg_founde
+    movw $msg_founde, %si
     call kputs
 
-    xor ax, ax
-    mov al, cl
-    inc ax
-    mov cl, ch
-    xor ch, ch
-    dec cx
+    xorw %ax, %ax
+    movb %cl, %al
+    incw %ax
+    movb %ch, %cl
+    xorb %ch, %ch
+    decw %cx
     call read
-    mov si, msg_ok
+    movw $msg_ok, %si
     call kputs
     popa
 
-    inc dx
-    cmp dx, 2
+    incw %dx
+    cmpw $02, %dx
     jne .boot_cont
 
-    mov ax, cs
-    mov ds, ax
-    mov es, ax
+    movw %cs, %ax
+    movw %ax, %ds
+    movw %ax, %es
 
-    mov si, msg_boot
+    movw $msg_boot, %si
     call kputs
 
-    mov ah, 0x03
-    xor bx, bx
-    int 0x10 ;получаем координаты курсора
-    push ds
-    mov ax, 0x999
-    mov ds, ax
-    mov [0x0], dx ;запоминаем координаты
-    pop ds
+    //get cursor coords
+    movb $0x03, %ah
+    xorw %bx, %bx
+    int  $0x10
+    //store coords
+    push %ds
+    movw $0x0999, %ax
+    movw %ax, %ds
+    movw %dx, 0
+    popw %ds
 
-    ; уберем курсор
-    mov ah, 1
-    mov ch, 0x20
-    int 0x10
+    //hide cursor
+    movb $0x01, %ah
+    movb $0x20, %ch
+    int  $0x10
 
-    ;; Установим базовый вектор контроллера прерываний в 0x20
-    mov al,00010001b
-    out 0x20,al
-    mov al,0x20
-    out 0x21,al
-    mov al,00000100b
-    out 0x21,al
-    mov al,00000001b
-    out 0x21,al
+    //setup base interrupt vector 0x20
+    movb $0b00010001, %al
+    outb %al, $0x20
+    movb $0b00100000, %al
+    outb %al, $0x21
+    movb $0b00000100, %al
+    outb %al, $0x21
+    movb $0b00000001, %al
+    outb %al, $0x21
 
-    ;; Отключим прерывания
     cli
 
-    ;; Загрузка регистра GDTR:
-    lgdt [gd_reg]
+    lgdt gd_reg
 
-    ;; Включение A20:
-    in al, 0x92
-    or al, 2
-    out 0x92, al
+    //enable A20
+    inb  $0x92, %al
+    orb  $02, %al
+    outb %al, $0x92
 
-    ;; Установка бита PE регистра CR0
-    mov eax, cr0
-    or al, 1
-    mov cr0, eax
+    //set PE-bit
+    movl %cr0, %eax
+    orb  $01, %al
+    movl %eax, %cr0
 
-    ;; С помощью длинного прыжка мы загружаем
-    ;; селектор нужного сегмента в регистр CS
-    ;; (напрямую это сделать нельзя)
-    jmp 0x8: _protected
+    //loading segment selector into CS
+    jmpl $0x8, $_protected
 
-    ;; Следующий код - 32-битный
-[BITS 32]
-    ;; Сюда будет передано управление
-    ;; после входа в PM
-_protected:
-    mov ax, 0x10
-    mov ds, ax
-    mov es, ax
-    mov ss, ax
-    jmp 0x10000
+.code32
+_protected: //protected mode here
+    movw $0x10, %ax
+    movw %ax, %ds
+    movw %ax, %es
+    movw %ax, %ss
+    jmpl $0x08, $0x10000
 
-[BITS 16]
+.code16
 kputs:
-    push ax
-    push ds
-    mov ax, cs
-    mov ds, ax
-.loop:
+    push %ax
+    push %ds
+    movw %cs, %ax
+    movw %ax, %ds
+.kputs_loop:
     lodsb
-    test al, al
-    jz .quit
-    mov ah, 0x0E
-    int 0x10
-    jmp short .loop
-.quit:
-    pop ds
-    pop ax
+    test %al, %al
+    jz   .kputs_quit
+    movb $0x0E, %ah
+    int  $0x10
+    jmp  .kputs_loop
+.kputs_quit:
+    popw %ds
+    popw %ax
     ret
-
 kputc:
-    push ax
-    mov ah, 0x0E
-    int 0x10
-    pop ax
+    push %ax
+    movb $0x0E, %ah
+    int  $0x10
+    popw %ax
     ret
-
-kputh:  ;al - число 4 бит
-    push ax
-    cmp al, 10
-    jge .gef
-    add al, '0'
-    jmp short .out
-    .gef:
-    add al, ('A' - 10)
-    .out:
-    mov ah, 0x0E
-    int 0x10
-    pop ax
+kputh:  ;//al - 4-bit number
+    push %ax
+    cmpb $10, %al
+    jge  .kputh_gef
+    addb $'0', %al
+    jmp .kputh_out
+    .kputh_gef:
+    addb $'7', %al
+    .kputh_out:
+    movb $0x0E, %ah
+    int  $0x10
+    popw %ax
     ret
-
-kputn:  ;al - число 8 бит
-    push ax
-    cmp al, 0x0F
-    jle short .l
-        mov ah, al
-        shr al, 4
-        and al, 0x0F
+kputn:  ;//al - 8-bit number
+    push %ax
+    cmpb $0x0F, %al
+    jle .kputn_l
+        movb %al, %ah
+        shrb $04, %al
+        andb $0x0F, %al
         call kputh
-        mov al, ah
-        and al, 0x0F
-    .l:
+        movb %ah, %al
+        andb $0x0F, %al
+    .kputn_l:
     call kputh
-    pop ax
+    popw %ax
     ret
 
-read:  ;ax - № сектора, cx - количество, es - буффер
+read:  //ax - sector N, cx - count, es - buffer
     pusha
-    xor bx, bx
-    .rs:
-        push cx
-        push ax
-        mov al, '.'
-        mov ah, 0x0E
-        int 0x10
+    xorw %bx, %bx
+    .read_rs:
+        push %cx
+        push %ax
+        movb $'.', %al
+        movb $0x0E, %ah
+        int $0x10
 
-        pop ax
-        push ax
-        mov dl, 18
-        div dl  ;№ / 18
-        inc ah
-        mov cl, ah ;START_SECTOR    № % 18 + 1
+        popw %ax
+        push %ax
+        movb $18, %dl
+        divb %dl     ;//N / 18
+        incb %ah
+        movb %ah, %cl;//START_SECTOR    N % 18 + 1
 
-        pop ax
-        push ax
-        mov dl, 36
-        div dl  ;№ / 36
-        mov ch, al ;START_TRACK     № / 36
-        mov al, ah
-        xor ah, ah
-        mov dl, 18
-        div dl
-        mov dh, al ;START_HEAD      (№ % 36) / 18
-        mov dl, 0 ;FLOPPY_ID
-        mov ah, 2
-        mov al, 1 ;COUNT
-        int 0x13
-        add bx, 512
-        pop ax
-        inc ax
-        pop cx
-    loop .rs
+        popw %ax
+        push %ax
+        movb $36, %dl
+        divb %dl     ;//N / 36
+        movb %al, %ch;//START_TRACK     N / 36
+        movb %ah, %al
+        xorb %ah, %ah
+        movb $18, %dl
+        divb %dl
+        movb %al, %dh;//START_HEAD      (N % 36) / 18
+        movb $00, %dl;//FLOPPY_ID
+        movb $02, %ah
+        movb $01, %al;//COUNT
+        int $0x13
+        addw $512, %bx
+        popw %ax
+        incw %ax
+        popw %cx
+    loop .read_rs
     popa
     ret
-
-[BITS 32]
 gdt:
-	dw 0, 0, 0, 0	; Нулевой дескриптор
+   .word 0, 0, 0, 0 ;//zero descriptor
 
-	db 0xFF		; Сегмент кода с DPL=0
-	db 0xFF		; Базой=0 и Лимитом=4 Гб
-	db 0x00
-	db 0x00
-	db 0x00
-	db 10011010b
-	db 0xCF
-	db 0x00
+   .word 0xFFFF       ;//code segment DPL=0 base=0 limit=4G
+   .byte 0
+   .byte 0
+   .byte 0
+   .byte 0b10011010
+   .byte 0xCF
+   .byte 0x00
 
-	db 0xFF		; Сегмент данных с DPL=0
-	db 0xFF		; Базой=0 и Лимитом=4Гб
-	db 0x00
-	db 0x00
-	db 0x00
-	db 10010010b
-	db 0xCF
-	db 0x00
+   .word 0xFFFF       ;//data segment DPL=0 base=0 limit=4G
+   .byte 0
+   .byte 0
+   .byte 0
+   .byte 0b10010010
+   .byte 0xCF
+   .byte 0x00
 
-    ;; Значение, которое мы загрузим в GDTR:
 gd_reg:
-    dw 8192
-    dd gdt
+   .word 8192
+   .long gdt
 
-[BITS 16]
-msg_readmft:    db "reading MFT..", 0
-msg_notfound:   db "somewhat not found!", 0
-msg_kernel:     db "kernel", 0
-msg_iramfs:     db "initramfs", 0
-msg_found:      db " found [", 0
-msg_founde:     db "] loading..", 0
-msg_ok:         db "ok", 0x0A, 0x0D, 0
-msg_boot:	db "booting kernel...", 0
-TIMES 510 - ($-$$) db 0
-db 0xAA, 0x55
+msg_readmft:    .asciz "reading MFT.."
+msg_notfound:   .asciz "somewhat not found!"
+msg_kernel:     .asciz "kernel"
+msg_iramfs:     .asciz "initramfs"
+msg_found:      .asciz " found ["
+msg_founde:     .asciz "] loading.."
+msg_ok:         .asciz "ok\r\n"
+msg_boot:	.asciz "booting kernel..."
+
+.org 510
+.byte 0x55, 0xAA

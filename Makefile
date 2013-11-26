@@ -10,8 +10,10 @@ all: $(DIST)/floppy.img
 $(DIST)/floppy.img: $(BUILD)/bootsector.bin $(BUILD)/kernel.bin kernel_lib/dist/initramfs $(BUILD)/imgmake
 	exec $(BUILD)/imgmake $(BUILD)/bootsector.bin $(BUILD)/kernel.bin kernel_lib/dist/initramfs $@
 
-$(BUILD)/bootsector.bin: $(BOOTSRC)/bootsector.s
-	nasm -fbin -o $(BUILD)/bootsector.bin $(BOOTSRC)/bootsector.s
+$(BUILD)/bootsector.bin: $(BUILD)/bootsector.o $(BOOTSRC)/bootsector.ld
+	$(LD) -o $@ $< -T $(BOOTSRC)/bootsector.ld
+$(BUILD)/bootsector.o: $(BOOTSRC)/bootsector.s
+	$(CC) -o $@ $<
 
 $(BUILD)/kernel.bin:
 	$(CC) -o $(BUILD)/startup.o $(KRNSRC)/startup.c
