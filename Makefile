@@ -28,3 +28,6 @@ $(BUILD)/imgmake: src/img/make.c
 clean:
 	rm -rf $(DIST)/*
 	rm -rf $(BUILD)/*
+
+run: $(DIST)/floppy.img
+	qemu-system-i386 -fda $< -boot once=a -no-fd-bootchk
