@@ -10,7 +10,7 @@ import java.io.IOException;
  */
 public class hello {
 
-    protected static String about = "falseOS ia a true operating system based on java\n\t[writted by Vakhurin Sergey aka igel]\n";
+    protected static String about = "falseOS is a true operating system based on java\n\t[writted by Vakhurin Sergey aka igel]\n";
     protected static String uc = "Unknown command: ";
     protected static String help = "\tone of these command expected:\n\t\tclear - clear the screen\n\t\tfree  - show memory usage\n\t\tfloppy- testing floppy controller\n\t\treboot - rebooting computer\n\t\tabout - show greeting\n";
     protected static String promt = "[fos]$ ";
