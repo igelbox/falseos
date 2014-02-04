@@ -2,7 +2,7 @@ DIST=dist
 BUILD=build
 BOOTSRC=src/boot
 KRNSRC=src/krn
-CC=gcc -std=c99 -Os -m32 -ffreestanding -c -Wall
+CC=gcc -std=c99 -Os -m32 -ffreestanding -c -Wall -march=i386
 LD=ld -m elf_i386 --oformat binary 
 
 all: $(DIST)/floppy.img
